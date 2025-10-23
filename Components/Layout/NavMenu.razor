@@ -1,0 +1,98 @@
+﻿@inject CA1_Nicolai_deGroot.Services.CountryService CountryService
+@inject NavigationManager Nav
+
+<div class="top-row">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Country's:</a>
+    </div>
+</div>
+
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+
+        @if (countries == null)
+        {
+            <p>Loading countries...</p>
+        }
+        else
+        {
+            <div class="country-grid">
+                @foreach (var c in countries)
+                {
+                    <div class="country-card" @onclick="@(() => GoToCountry(c.Name.Common))">
+
+                        <NavLink class="nav-link" href="@($"/country/{Uri.EscapeDataString(c.Name.Common)}")">
+                            <img src="@c.Flags?.Png" alt="Flag of @c.Name.Common" width="60" />
+                            <p>@c.Name.Common</p>
+                        </NavLink>
+                    </div>
+                }
+            </div>
+        }
+
+    </nav>
+</div>
+
+
+@code {
+    private List<CA1_Nicolai_deGroot.Services.Country> countries = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        countries = await CountryService.GetAllCountriesAsync();
+    }
+
+    private void GoToCountry(string? name)
+    {
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            var encoded = Uri.EscapeDataString(name.Trim());
+            Nav.NavigateTo($"/country/{encoded}");
+        }
+    }
+
+}
+
+<style>
+
+    .container-fluid {
+        background-color: black;
+        height: 3.5rem;
+        padding-top: 1rem;
+        border-bottom: 1px solid red;
+
+    }
+    .navbar-brand {
+        margin: 0 auto;
+        width: 50%;
+        color: yellow;
+        padding-left: 4.5rem;
+        
+    }
+
+    .nav-scrollable {
+        background: #000000;
+        background: linear-gradient(180deg,rgba(0, 0, 0, 1) 0%, rgba(253, 29, 29, 1) 100%);
+    }
+
+    .country-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .nav-link {
+
+        border-radius: 8px;
+        text-align: center;
+        color: white;
+    }
+
+    .nav-link:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background-color: red;
+    }
+</style>
